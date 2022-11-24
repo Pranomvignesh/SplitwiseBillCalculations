@@ -1,0 +1,35 @@
+body {
+  margin-top: 30px;
+  display: flex;
+}
+
+table.dataframe.custom.original thead {
+  display: none;
+}
+
+table.dataframe.custom.original td {
+  width: 100px;
+}
+.custom {
+  font-size      : 12pt;
+  margin         : auto;
+  font-family    : Times;
+  border-collapse: collapse;
+  border         : 1px solid silver;
+}
+
+.custom td,.custom th {
+  padding   : 5px;
+  width     : 70px;
+  text-align: center;
+}
+
+.custom:not(.original) tbody tr:last-child {
+  margin-top:10px;
+  background: #97f686;
+  font-weight: bold;
+}
+
+.custom th:first-child {
+  display: none;
+}
