@@ -1,26 +1,51 @@
 # Imports
 import pandas as pd
 import os
-import sys
 import numpy as np
 import pdfkit
 import datetime
+import argparse
+
+from typing import List
 from dotenv import load_dotenv
 from splitwise import Splitwise
 from splitwise.expense import Expense
-from splitwise.user import ExpenseUser
+from splitwise.user import ExpenseUser,User
+
+# Argument Parser
+parser = argparse.ArgumentParser(
+    prog="splitBill.py",
+    description="A program to split the bill in a easy readable format and publish it to Splitwise",
+    epilog="This program is developed by pranomvignesh"
+)
+parser.add_argument(
+    'ExcelFileName',
+    metavar="excel_file_name",
+    help="Excel file name which will be used as a data source. This is a required argument for this application",
+)
+parser.add_argument(
+    '--publish','-P',
+    default=False,
+    action="store_true",
+    help="A switch to enable publishing to Splitwise else the program will do a dry run in local machine",
+    required=False
+)
+args = parser.parse_args()
 
 pd.options.mode.chained_assignment = None  # default='warn'
 
 load_dotenv()
+
 # Constants
 CONSUMER_KEY=os.getenv('CONSUMER_KEY')
 CONSUMER_SECRET=os.getenv('CONSUMER_SECRET')
 API_KEY = os.getenv('API_KEY')
 FOLDER = os.path.dirname(os.path.abspath(__file__))
-EXCEL_FILE_NAME = sys.argv[1]
+EXCEL_FILE_NAME = args.ExcelFileName
+CAN_PUBLISH = args.publish
 REL_PATH = '../'
 EXCEL_FILE_PATH = os.path.join(FOLDER,REL_PATH,EXCEL_FILE_NAME)
+CSS_PATH = os.path.abspath(os.path.join(FOLDER,'splitBill.css'))
 EXCEL_DATA = pd.read_excel(EXCEL_FILE_PATH,header=None)
 SHOP_NAME = EXCEL_DATA[1][0]
 DATE = EXCEL_DATA[3][0]
@@ -48,7 +73,13 @@ splittedData = pd.DataFrame(data,columns=COLUMNS)
 splittedData[COLUMNS[0]] = np.NaN
 index = 0
 
-def expandList(boughtBy):
+def expandList(boughtBy:List)->List:
+    '''
+    This function will expand the boughtBy list into its real form
+    For example,
+        Common - includes all members, so the list will be all members
+        Group1 - will be first 3 members
+    '''
     actualBoughtBy = []
     map = {
         'common': MEMBERS,
@@ -65,7 +96,11 @@ def expandList(boughtBy):
             actualBoughtBy.append(i)
     return list(set(actualBoughtBy))
 
-def splitBill(item,amount,boughtBy):
+def splitBill(item:str,amount:float,boughtBy:List) -> None:
+    '''
+    This function splits the amount equally among the members in the bought by list
+    This will create a new entry in the output only if the item is not present in the output
+    '''
     global index
     existingItems = splittedData['Item'].values.tolist()
     sharingMembers = []
@@ -82,15 +117,29 @@ def splitBill(item,amount,boughtBy):
         amtForEach = round(amount / len(sharingMembers),3)
         for member in sharingMembers:
             splittedData[member][rowIndex] = splittedData[member][rowIndex] + amtForEach
+    pass
 
-def addExpenseToUser(user,amountOwed):
+def addExpenseToUser(user:User,amountOwed:float) -> ExpenseUser:
+    '''
+    This function accepts a user and amount owed by the user.
+    With that information creates an ExpenseUser object.
+    The amount owed by the user is rounded to 3 decimal places
+    Note: Paid Share of the users are set to 0 here.
+    '''
     expenseUser = ExpenseUser()
     expenseUser.setId(user.getId())
     expenseUser.setOwedShare(round(amountOwed,3))
     expenseUser.setPaidShare(0)
     return expenseUser
 
-def getUserFromMembers(members,name):
+def getUserFromMembers(members:List,name:str) -> User|None:
+    '''
+    This function is used to get the appropriate user object from the 
+    list of members in the group.
+    This function accepts the member of the group and name of the member to search in the list
+
+    Returns None if no user is found
+    '''
     if name in NAME_ALIAS.keys():
         name = NAME_ALIAS[name]
     user = [member for member in members if member.getFirstName() == name]
@@ -101,7 +150,7 @@ def getUserFromMembers(members,name):
 splitwise = Splitwise(CONSUMER_KEY,CONSUMER_SECRET,api_key=API_KEY)
 current = splitwise.getCurrentUser()
 groups = splitwise.getGroups()
-TARGET_GROUP_NAME = '143 expenses'
+TARGET_GROUP_NAME = '143 expenses' 
 targetGroup = [group for group in groups if group.name == TARGET_GROUP_NAME][0]
 groupMembers = targetGroup.getMembers()
 expense = Expense()
@@ -126,7 +175,7 @@ for i in MEMBERS:
     if user is not None:
         expenseUser = addExpenseToUser(user,amountOwed)
         if i == PAID_BY:
-            expenseUser.setPaidShare(round(TOTAL_BILL,3))
+            expenseUser.setPaidShare(round(TOTAL_BILL,2))
         users.append(expenseUser)
 
 splittedData.loc[len(splittedData.index)] = lastRow
@@ -145,16 +194,19 @@ html_string = f'''
   </body>
 </html>
 '''
-file = open('recent.html','w')
-file.write(html_string)
-file.close()
 
-pdfkit.from_string(html_string,OUTPUT_PATH,css='splitBill.css')
-os.system('open '+OUTPUT_PATH)
+pdfkit.from_string(html_string,ABSOLUTE_OUTPUT_PATH,css=CSS_PATH)
+os.system('open '+OUTPUT_PATH.replace(' ','\\ '))
 
 expense.setUsers(users)
 expense.setReceipt(ABSOLUTE_OUTPUT_PATH)
-
-# createdExpense, errors = splitwise.createExpense(expense)
-# if errors is not None:
-#     print(errors.getErrors())
+expense.setDescription('-'.join([SHOP_NAME,DATE]))
+if CAN_PUBLISH is True:
+    createdExpense, errors = splitwise.createExpense(expense)
+    if errors is not None:
+        print(errors.getErrors())
+else:
+    print('''
+    Your result is not published to Splitwise,
+    if you want to publish your results, run the script with `--publish` flag
+    ''')
