@@ -51,7 +51,7 @@ EXCEL_DATA = pd.read_excel(EXCEL_FILE_PATH, header=None)
 SHOP_NAME = EXCEL_DATA[1][0]
 DATE = EXCEL_DATA[3][0]
 BILL = EXCEL_DATA[1][1]
-TAX = EXCEL_DATA[3][1] or 0
+TAX = EXCEL_DATA[3][1]
 TOTAL_BILL = EXCEL_DATA[2][2]
 PAID_BY = EXCEL_DATA[4][2]
 NO_OF_HEADER_ROWS = 4
@@ -74,7 +74,8 @@ data = np.zeros((EXCEL_DATA.shape[0]-NO_OF_HEADER_ROWS, len(COLUMNS)))
 splittedData = pd.DataFrame(data, columns=COLUMNS)
 splittedData[COLUMNS[0]] = np.NaN
 index = 0
-
+if (np.isnan(TAX)):
+    TAX = 0
 
 def _round(number, decimalPlaces):
     string = '{}'.format(number)

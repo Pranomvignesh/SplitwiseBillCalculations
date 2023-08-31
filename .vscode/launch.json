@@ -5,9 +5,9 @@
             "name": "Python: Current File",
             "type": "python",
             "request": "launch",
-            "program": "${file}",
+            "program": "/Users/pranomvignesh/Documents/BillCalculations/Automation Script/splitBill.py",
             "console": "integratedTerminal",
-            "args" : ["DollarTree-28-Aug-23.xlsx"]
+            "args" : ["SuperBazaar-27-Aug-23.xlsx"]
         }
     ]
 }
