@@ -245,7 +245,7 @@ if CAN_PUBLISH is False:
     os.system('open '+OUTPUT_PATH.replace(' ', '\\ '))
 
 expense.setUsers(users)
-# expense.setReceipt(ABSOLUTE_OUTPUT_PATH)
+expense.setReceipt(ABSOLUTE_OUTPUT_PATH)
 expense.setDescription('-'.join([SHOP_NAME, DATE]))
 if CAN_PUBLISH is True:
     try:
