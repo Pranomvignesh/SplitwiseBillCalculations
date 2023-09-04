@@ -1,0 +1,6 @@
+
+    [console_scripts]
+        addBill=main:addBill
+        showBillSplit=main:showBillSplit
+        publishBill=main:publishBill
+    

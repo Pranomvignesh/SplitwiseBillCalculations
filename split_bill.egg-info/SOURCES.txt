@@ -1,0 +1,8 @@
+README.md
+setup.py
+split_bill.egg-info/PKG-INFO
+split_bill.egg-info/SOURCES.txt
+split_bill.egg-info/dependency_links.txt
+split_bill.egg-info/entry_points.txt
+split_bill.egg-info/requires.txt
+split_bill.egg-info/top_level.txt
