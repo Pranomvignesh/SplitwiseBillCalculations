@@ -12,8 +12,8 @@ setup(
     ],
     entry_points='''
     [console_scripts]
-        addBill=main:addBill
-        showBillSplit=main:showBillSplit
-        publishBill=main:publishBill
+        addBill=main:add_bill
+        showBillSplit=main:show_bill_split
+        publishBill=main:publish_bill
     '''
 )
