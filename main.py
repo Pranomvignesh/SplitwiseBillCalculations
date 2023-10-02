@@ -13,7 +13,9 @@ from utils import get_all_child_folders, \
 
 from split_bill import split_bill
 
-STORES_FOLDER = Path('./stores').absolute()
+BASE_PATH = Path(__file__).parent
+
+STORES_FOLDER = BASE_PATH.joinpath('./stores').absolute()
 if not STORES_FOLDER.exists():
     os.mkdir(STORES_FOLDER)
 
@@ -81,10 +83,7 @@ def publish_bill():
     ).execute()
     if proceed_with_last_modified:
         file = get_last_modified_file(STORES_FOLDER)
-        print(file)
-        # split_bill_with_last_modified_file
-        # split_bill(Path(STORES_FOLDER).joinpath(store, file), publish=True)
-        pass
+        split_bill(Path(STORES_FOLDER).joinpath(store, file), publish=True)
     else:
         store = inquirer.rawlist(
             message="Select Store",

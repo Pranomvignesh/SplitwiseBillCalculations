@@ -22,6 +22,7 @@ load_dotenv()
 
 index = 0
 
+BASE_PATH = Path(__file__).parent
 
 def split_bill(file_path: Path, publish: bool = False):
     # API Keys
@@ -29,8 +30,8 @@ def split_bill(file_path: Path, publish: bool = False):
     CONSUMER_SECRET = os.getenv('CONSUMER_SECRET')
     API_KEY = os.getenv('API_KEY')
     # Constants
-    CSS_PATH = Path('split_bill.css').absolute()
-    CONFIG_PATH = Path('config.json').absolute()
+    CSS_PATH = BASE_PATH.joinpath('split_bill.css').absolute()
+    CONFIG_PATH = BASE_PATH.joinpath('config.json').absolute()
     NO_OF_HEADER_ROWS = 4
     ADJUSTING_FOR_RANGE = 1
     CAN_PUBLISH = publish

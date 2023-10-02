@@ -8,7 +8,10 @@ from pathlib import Path
 from typing import List
 from datetime import datetime
 
-TEMPLATE_PATH = Path('./General_Bill_Template.xlsx')
+
+BASE_PATH = Path(__file__).parent
+
+TEMPLATE_PATH = BASE_PATH.joinpath('./General_Bill_Template.xlsx')
 OS = platform.system()
 
 
@@ -87,7 +90,7 @@ def get_last_modified_file(base_folder_path: Path) -> str:
     for file in file_list_to_include:
         if file not in file_list_to_exclude:
             modified_time = os.path.getmtime(file)
-            if last_modified_file is None or last_modified_time > modified_time:
+            if last_modified_file is None or last_modified_time < modified_time:
                 last_modified_file = file
                 last_modified_time = modified_time
     return last_modified_file
