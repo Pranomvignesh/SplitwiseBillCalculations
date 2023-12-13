@@ -1,5 +1,7 @@
 README.md
 setup.py
+main/__init__.py
+main/main.py
 split_bill.egg-info/PKG-INFO
 split_bill.egg-info/SOURCES.txt
 split_bill.egg-info/dependency_links.txt

@@ -1,14 +1,15 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="split-bill",
+    name="split_bill",
     version="0.0.1",
-    packages=find_packages(),
+    packages=['main'],
     install_requires = [
         'InquirerPy',
         'pdfkit',
         'splitwise',
-        'openpyxl'
+        'openpyxl',
+        'dotenv'
     ],
     entry_points='''
     [console_scripts]

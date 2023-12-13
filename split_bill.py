@@ -8,6 +8,7 @@ import json
 
 from typing import List
 from pathlib import Path
+from dateutil import parser
 from datetime import datetime
 from dotenv import load_dotenv
 from splitwise import Splitwise
@@ -24,6 +25,7 @@ index = 0
 
 BASE_PATH = Path(__file__).parent
 
+
 def split_bill(file_path: Path, publish: bool = False):
     # API Keys
     CONSUMER_KEY = os.getenv('CONSUMER_KEY')
@@ -38,13 +40,14 @@ def split_bill(file_path: Path, publish: bool = False):
     EXCEL_FILE_PATH = file_path
     EXCEL_DATA = pd.read_excel(EXCEL_FILE_PATH, header=None)
     SHOP_NAME = EXCEL_DATA[1][0]
-    DATE = EXCEL_DATA[3][0]
+    DATE = str(EXCEL_DATA[3][0]).split(' ')[0]
     BILL = EXCEL_DATA[1][1]
     TAX = EXCEL_DATA[3][1]
     TOTAL_BILL = EXCEL_DATA[2][2]
     PAID_BY = EXCEL_DATA[4][2]
-    DATE = datetime.now().strftime("%b-%d-%y")
-    EXCEL_DATA[3][0] = DATE
+    datetime_object = parser.parse(DATE)
+    DATE = datetime_object.strftime("%b-%d-%y[%I-%M-%S %p]")
+    EXCEL_DATA[3][0] = datetime_object.strftime("%b-%d-%y")
     ABSOLUTE_OUTPUT_PATH = str(Path(file_path).parent.joinpath(
         '-'.join([SHOP_NAME, DATE+'.pdf'])).absolute())
     COLUMNS = ['Item']
@@ -77,9 +80,9 @@ def split_bill(file_path: Path, publish: bool = False):
         '''
         actualBoughtBy = []
         map = {
-            'common': MEMBERS,
+            'common': MEMBERS[:-1],
             'group1': MEMBERS[0:3],
-            'group2': MEMBERS[3:]
+            'group2': MEMBERS[3:6]
         }
         for i in boughtBy:
             if i.lower() in map.keys():
@@ -224,6 +227,7 @@ def split_bill(file_path: Path, publish: bool = False):
     expense.setUsers(users)
     expense.setReceipt(ABSOLUTE_OUTPUT_PATH)
     expense.setDescription('-'.join([SHOP_NAME, DATE]))
+    expense.created_at = datetime_object.strftime("%d/%m/%y")
     if CAN_PUBLISH is True:
         try:
             createdExpense, errors = splitwise.createExpense(expense)
