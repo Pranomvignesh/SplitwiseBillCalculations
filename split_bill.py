@@ -40,7 +40,7 @@ def split_bill(file_path: Path, publish: bool = False):
     EXCEL_FILE_PATH = file_path
     EXCEL_DATA = pd.read_excel(EXCEL_FILE_PATH, header=None)
     SHOP_NAME = EXCEL_DATA[1][0]
-    DATE = str(EXCEL_DATA[3][0]).split(' ')[0]
+    DATE = str(EXCEL_DATA[3][0])
     BILL = EXCEL_DATA[1][1]
     TAX = EXCEL_DATA[3][1]
     TOTAL_BILL = EXCEL_DATA[2][2]
