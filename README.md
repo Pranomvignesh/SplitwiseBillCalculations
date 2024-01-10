@@ -60,6 +60,8 @@ Add all these parameters in the `.env` file
 
 ### Existing .env file
 
+```text
 CONSUMER_KEY="Dr...6"
 CONSUMER_SECRET="uW...l"
 API_KEY="UM...y"
+```
